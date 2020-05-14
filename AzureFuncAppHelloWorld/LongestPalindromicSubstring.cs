@@ -66,7 +66,7 @@ namespace AzureFuncAppHelloWorld
             s = s ?? data?.s;
 
             string responseMessage = string.IsNullOrEmpty(s)
-                ? "This HTTP triggered function executed successfully. Pass a s(string) in the query string or in the request body for a personalized response."
+                ? "This HTTP triggered function executed successfully. Pass a s(string) in the query string or in the request body for response."
                 : $"Hello, the longest palindromic substring for {s} is {LongestPalindrome(s)}.";
 
             return new OkObjectResult(responseMessage);
