@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +58,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
+            // http://localhost:7071/api/LongestPalindromicSubstring?s=babad
             string s = req.Query["s"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();

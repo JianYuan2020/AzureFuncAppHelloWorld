@@ -62,6 +62,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
+            // http://localhost:7071/api/DictionaryLookupWithWildcard?query=f*x&words=foo_bar_fox
             string query = req.Query["query"];
             string words = req.Query["words"];
 
