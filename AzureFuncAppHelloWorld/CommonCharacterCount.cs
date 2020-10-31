@@ -36,7 +36,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            // http://localhost:7071/api/AlmostIncreasingSequence?sNumbers=1,2,3,4,3,6
+            // http://localhost:7071/api/CommonCharacterCount?s1=aabcc&s2=adcaa
             string s1 = req.Query["s1"];
             string s2 = req.Query["s2"];
 

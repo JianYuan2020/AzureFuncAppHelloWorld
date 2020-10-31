@@ -14,54 +14,18 @@ namespace AzureFuncAppHelloWorld
 {
     public static class MatrixElementsSum
     {
-        static int ProcessNextInt(Stack<int> tempStack, int nextInt, int removeCount)
-        {
-            // tempStack is never empty here so we can peek
-            int stockTop = tempStack.Peek();
-            if (stockTop < nextInt)
-            {
-                tempStack.Push(nextInt);
-                return removeCount;
-            }
-
-            // stockTop >= next1Int, decide whether to remove the stockTop or next1Int
-            removeCount++;
-            if (stockTop > nextInt)
-            {
-                tempStack.Pop();
-                if (tempStack.Count > 0 && tempStack.Peek() >= nextInt)
-                {
-                    tempStack.Push(stockTop);
-                }
-                else
-                {
-                    tempStack.Push(nextInt);
-                }
-            }
-            return removeCount;
-        }
-
         static int matrixElementsSum(int[][] matrix)
         {
-
             int r = 0, c = 0, rowCnt = matrix.Length, colCnt = matrix[0].Length, sum = 0;
-            bool[][] flagInts = new bool[rowCnt][];
+            List<int> ghostList = new List<int>();
             for (r = 0; r < rowCnt; r++)
             {
                 for (c = 0; c < colCnt; c++)
                 {
-                    if (flagInts[r] == null)
-                        flagInts[r] = new bool[colCnt];
-                    if (r == 0)
-                    { // Init                       
-                        flagInts[r][c] = matrix[r][c] != 0;
-                    }
-                    else
-                    {
-                        flagInts[r][c] &= matrix[r][c] != 0;
-                    }
-                    if (flagInts[r][c])
+                    if (!ghostList.Contains(c))
                         sum += matrix[r][c];
+                    if (matrix[r][c] == 0)
+                        ghostList.Add(c);
                 }
             }
             return sum;
@@ -74,7 +38,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            // http://localhost:7071/api/AlmostIncreasingSequence?sNumbers=1,2,3,4,3,6
+            // http://localhost:7071/api/MatrixElementsSum?sNumbers=1,1,1;2,2,2
             string s = req.Query["sNumbers"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
