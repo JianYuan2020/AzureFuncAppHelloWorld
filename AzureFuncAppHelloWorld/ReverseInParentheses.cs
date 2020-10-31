@@ -33,16 +33,27 @@ namespace AzureFuncAppHelloWorld
         static List<int> GetIndexListForChar(string inputString, char c)
         {
             List<int> myIndexList = new List<int>();
-            int startIndex = 0;
-            int myIndex = inputString.IndexOf(c, startIndex);
-            startIndex = myIndex + 1;
-            while (myIndex >= 0 && startIndex <= inputString.Length - 1)
+            int myIndex = inputString.IndexOf(c, 0);
+            while (myIndex >= 0)
             {
                 myIndexList.Add(myIndex);
-                myIndex = inputString.IndexOf(c, startIndex);
-                startIndex = myIndex + 1;
+                myIndex = myIndex < inputString.Length - 1 ? inputString.IndexOf(c, myIndex + 1) : -1;
             }
             return myIndexList;
+        }
+
+        static int GetClosestOpen(List<int> openPIndexList, int closePIndex)
+        {
+            int closestOpen = -1, tempOpen = -1;
+            for (int i = 0; i < openPIndexList.Count; i++)
+            {
+                tempOpen = openPIndexList[i];
+                if (tempOpen < closePIndex)
+                    closestOpen = tempOpen;
+                else
+                    break;
+            }
+            return closestOpen;
         }
 
         static string reverseOneParenthese(string inputString, int openPIndex, int closeIndex)
@@ -51,7 +62,7 @@ namespace AzureFuncAppHelloWorld
 
             if (openPIndex > 0)
                 outputString += inputString.Substring(0, openPIndex);
-            outputString += reverseString(inputString.Substring(openPIndex + 1, closeIndex - openPIndex - 1).ToCharArray());
+            outputString += reverseString(inputString.Substring(openPIndex, closeIndex - openPIndex + 1).ToCharArray());
             if (closeIndex < inputString.Length - 2)
                 outputString += inputString.Substring(closeIndex + 1);
 
@@ -65,17 +76,17 @@ namespace AzureFuncAppHelloWorld
             if (openPIndexList.Count != closePIndexList.Count)
                 return "Not all parentheses are paired";
 
-            if (openPIndexList.Count == 0)
-                return inputString;
-
-            if (openPIndexList.Count == 1)
-                return reverseOneParenthese(inputString, openPIndexList[0], closePIndexList[0]);
-
-            for (int i = 0; i < openPIndexList.Count; i++)
+            int openP, closeP;
+            while (closePIndexList.Count > 0)
             {
-
+                closeP = closePIndexList[0];
+                openP = GetClosestOpen(openPIndexList, closeP);
+                openPIndexList.Remove(openP);
+                closePIndexList.Remove(closeP);
+                inputString = reverseOneParenthese(inputString, openP, closeP);
             }
-            return "TODO: for more than one Parentheses";
+            inputString = inputString.Replace("(", "");
+            return inputString.Replace(")", "");
         }
 
         [FunctionName("ReverseInParentheses")]
@@ -85,7 +96,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            // http://localhost:7071/api/ReverseString?s=hello
+            // http://localhost:7071/api/ReverseInParentheses?s=foo(bar)baz(blim)
             string s = req.Query["s"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
