@@ -80,20 +80,23 @@ namespace AzureFuncAppHelloWorld
 
         static int[] minimalBasketPrice(int maxPrice, int[] vendorsDelivery, int[][] vendorsProducts)
         {
-            SortedList delVenIndexList = new SortedList();
+            /*SortedList delVenIndexList = new SortedList();
             for (int i = 0; i < vendorsDelivery.Length; i++)
                 delVenIndexList.Add(vendorsDelivery[i], i);
 
             // Get the fastest sub group of vendors
             int subGroupCnt = 10;
-            int[] fastSubVenIndex = GetFastSubVenIndex(delVenIndexList, subGroupCnt);
+            int[] fastSubVenIndex = GetFastSubVenIndex(delVenIndexList, subGroupCnt);*/
+
+            int[] fastSubVenIndex = Enumerable.Range(0, vendorsDelivery.Length).ToArray();
 
             int[] minPriceVenIndex = null, minDeliveryVenIndex = null;
             int minPrice = int.MaxValue, minPriceMaxDelivery = 0;
             int minDelivery = int.MaxValue, minDeliveryMinPrice = 0;
 
             int[] venIndArr;
-            for (int l = 1; l<= fastSubVenIndex.Length; l++) {
+            int checkInterval = fastSubVenIndex.Length < 5 ? fastSubVenIndex.Length : 5;
+            for (int l = 1; l <= fastSubVenIndex.Length; l++) {
 
                 var fastSubVenIndexComb = GetKCombs(fastSubVenIndex, l);
                 foreach (var venInd in fastSubVenIndexComb)
@@ -120,6 +123,13 @@ namespace AzureFuncAppHelloWorld
                             minDeliveryMinPrice = m_MinPrice;
                         }
                     }
+                }
+
+                // Check at interval
+                if (l % checkInterval == 0)
+                {
+                    if (minPriceVenIndex != null && minDeliveryVenIndex != null && minDelivery < minPriceMaxDelivery)
+                        break;
                 }
             }
 
