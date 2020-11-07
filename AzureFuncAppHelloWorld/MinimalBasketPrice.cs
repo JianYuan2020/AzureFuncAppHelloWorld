@@ -22,30 +22,26 @@ namespace AzureFuncAppHelloWorld
             m_MaxDel = m_MinPrice = 0;
             m_HasAllItems = true;
 
-            List<int[]> venProd = new List<int[]>();
-            foreach (int v in venIndex)
-            {
-                if (vendorsDelivery[v] > m_MaxDel) m_MaxDel = vendorsDelivery[v];
-                venProd.Add(vendorsProducts[v]);
-            }
-
-            int numItems = vendorsProducts[0].Length;
-            int[] minSums = new int[numItems];
+            int vIndex, itemPrice, itemMinPrice, numItems = vendorsProducts[0].Length;
             for (int i = 0; i < numItems; i++)
             {
-                minSums[i] = -1;
-                foreach (int[] vp in venProd)
+                itemMinPrice = int.MaxValue;
+                for (int v = 0; v < venIndex.Length; v++)
                 {
-                    if (vp[i] != -1)
-                    {
-                        minSums[i] = minSums[i] < 0 ? vp[i] : Math.Min(minSums[i], vp[i]);
-                    }
-                }
-                if (minSums[i] == -1)
+                    vIndex = venIndex[v];
+                    if (vendorsDelivery[vIndex] > m_MaxDel) m_MaxDel = vendorsDelivery[vIndex];
+
+                    itemPrice = vendorsProducts[vIndex][i];
+                    if (itemPrice > 0 && itemMinPrice > itemPrice)
+                        itemMinPrice = itemPrice;
+
+                } // for (int v = 0; v < venIndex.Length; v++)
+
+                if (itemMinPrice == int.MaxValue)
                     m_HasAllItems = false;
                 else
-                    m_MinPrice += minSums[i];
-            }
+                    m_MinPrice += itemMinPrice;
+            } // for (int i = 0; i < numItems; i++)
         }
 
         static IEnumerable<IEnumerable<T>> GetKCombs<T>(IEnumerable<T> list, int length) where T : IComparable
@@ -63,9 +59,18 @@ namespace AzureFuncAppHelloWorld
             return retList.ToArray();
         }
 
-        static int[] GetFastSubVenIndex(SortedList delVenIndexList, int maxVenCnt)
+        static int[] GetFastSubVenIndex(int[] vendorsDelivery, int maxVenCnt)
         {
-            int i = 0, venIndex;
+            if (vendorsDelivery.Length <= maxVenCnt)
+                return Enumerable.Range(0, vendorsDelivery.Length).ToArray();
+
+            // vendorsDelivery.Length > maxVenCnt
+            int i, venIndex;
+            SortedList delVenIndexList = new SortedList();
+            for (i = 0; i < vendorsDelivery.Length; i++)
+                delVenIndexList.Add(vendorsDelivery[i], i);
+
+            i = 0;
             List<int> venIndexList = new List<int>();
             while (i < maxVenCnt)
             {
@@ -80,15 +85,9 @@ namespace AzureFuncAppHelloWorld
 
         static int[] minimalBasketPrice(int maxPrice, int[] vendorsDelivery, int[][] vendorsProducts)
         {
-            /*SortedList delVenIndexList = new SortedList();
-            for (int i = 0; i < vendorsDelivery.Length; i++)
-                delVenIndexList.Add(vendorsDelivery[i], i);
-
-            // Get the fastest sub group of vendors
-            int subGroupCnt = 10;
-            int[] fastSubVenIndex = GetFastSubVenIndex(delVenIndexList, subGroupCnt);*/
-
-            int[] fastSubVenIndex = Enumerable.Range(0, vendorsDelivery.Length).ToArray();
+            /*// Get the fastest sub group of vendors
+            int maxVenCnt = 10;
+            int[] fastSubVenIndex = GetFastSubVenIndex(vendorsDelivery, maxVenCnt);
 
             int[] minPriceVenIndex = null, minDeliveryVenIndex = null;
             int minPrice = int.MaxValue, minPriceMaxDelivery = 0;
@@ -135,7 +134,59 @@ namespace AzureFuncAppHelloWorld
 
             Console.WriteLine($"The best (maxPrice={maxPrice}) price: {minPrice}, vendor list: [{string.Join(", ", minPriceVenIndex)}], its max delivery: {minPriceMaxDelivery}");
             Console.WriteLine($"The best delivery: {minDelivery}, vendor list: [{string.Join(", ", minDeliveryVenIndex)}], its min price: {minDeliveryMinPrice}");
-            return minDeliveryVenIndex != null? GetSortedVenIndex(minDeliveryVenIndex) : GetSortedVenIndex(minPriceVenIndex);
+            return minDeliveryVenIndex != null? GetSortedVenIndex(minDeliveryVenIndex) : GetSortedVenIndex(minPriceVenIndex);*/
+
+            /* Here is the 1st place C# winner (the 23rd overall winners) ... is the return array sorted?
+            object minimalBasketPrice(int maxPrice, int[] vendorsDelivery, int[][] vendorsProducts)
+            {
+            */
+            var g = new HashSet<int>();
+            for (int i = vendorsDelivery.Min(); i <= vendorsDelivery.Max(); i++)
+            {
+                g.Clear();
+
+                // Get a list of venders with delivery <= i
+                var x = new List<int>();
+                for (int q = 0; q < vendorsDelivery.Length; q++)
+                {
+                    // The list order is ascending
+                    if (vendorsDelivery[q] <= i) { x.Add(q); }
+                }
+
+                int sum = 0;
+                bool hasAllItems = true;
+                for (int q = 0; q < vendorsProducts[0].Length; q++)
+                {
+                    int minPriceVenIndex = -1, venIndex;
+                    int minItemPrice = 100000000, itemPrice;
+                    for (int v = 0; v < x.Count; v++)
+                    {
+                        venIndex = x.ElementAt(v);
+                        itemPrice = vendorsProducts[venIndex][q];
+                        if (itemPrice > 0)
+                        {
+                            if (minItemPrice > itemPrice)
+                            {
+                                minItemPrice = itemPrice;
+                                minPriceVenIndex = venIndex;
+                            }
+                        }
+                    } // for item q, go over all venders with delivery <= i, get the min price and venIndex pair or 100000000 and -1
+
+                    if (minPriceVenIndex < 0)
+                        hasAllItems = false;
+                    else
+                    {
+                        sum += minItemPrice;
+                        g.Add(minPriceVenIndex);
+                    }
+                } // go over all items 
+
+                // If we found an answer, return ... is the return array sorted?
+                if (hasAllItems && sum <= maxPrice) return g.ToArray();
+            }
+            return g.ToArray();
+            //}
         }
 
         [FunctionName("MinimalBasketPrice")]
@@ -152,22 +203,22 @@ namespace AzureFuncAppHelloWorld
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             s = s ?? data?.s;
 
-            int maxPrice = 7;
+            /*int maxPrice = 7;
             int[] vendorsDelivery = new int[] { 5, 4, 2, 3 };
 
             int[][] vendorsProducts = new int[4][];
             vendorsProducts[0] = new int[] { 1, 1, 1 };
             vendorsProducts[1] = new int[] { 3, -1, 3 };
             vendorsProducts[2] = new int[] { -1, 2, 2 };
-            vendorsProducts[3] = new int[] { 5, -1, -1 };
+            vendorsProducts[3] = new int[] { 5, -1, -1 };*/
 
-            /*int maxPrice = 6;
+            int maxPrice = 6;
             int[] vendorsDelivery = new int[] { 1, 5, 10, 12 };
             int[][] vendorsProducts = new int[4][];
             vendorsProducts[0] = new int[] { -1, -1, -1 };
-            vendorsProducts[1] = new int[] { 3, -1, -1 };
+            vendorsProducts[1] = new int[] { -1, -1, 1 }; //vendorsProducts[1] = new int[] { 3, -1, -1 };
             vendorsProducts[2] = new int[] { -1, 2, -1 };
-            vendorsProducts[3] = new int[] { -1, -1, 1 };*/
+            vendorsProducts[3] = new int[] { 3, -1, -1 }; //vendorsProducts[3] = new int[] { -1, -1, 1 };
 
             string responseMessage = string.IsNullOrEmpty(s)
                 ? "This HTTP triggered function executed successfully. Pass a s(string) in the query string or in the request body for response."
