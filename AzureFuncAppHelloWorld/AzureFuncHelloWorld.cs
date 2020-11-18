@@ -17,7 +17,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.Info("C# HTTP trigger function processed a request.");
 
-            // http://localhost:7071/api/AzureFuncHelloWorld?name=%22Jian%22
+            // http://localhost:7071/api/AzureFuncHelloWorld?name=Jian
             string name = req.Query["name"];
 
             string requestBody = new StreamReader(req.Body).ReadToEnd();
