@@ -136,7 +136,9 @@ namespace AzureFuncAppHelloWorld
             Console.WriteLine($"The best delivery: {minDelivery}, vendor list: [{string.Join(", ", minDeliveryVenIndex)}], its min price: {minDeliveryMinPrice}");
             return minDeliveryVenIndex != null? GetSortedVenIndex(minDeliveryVenIndex) : GetSortedVenIndex(minPriceVenIndex);*/
 
-            /* Here is the 1st place C# winner (the 23rd overall winners) ... is the return array sorted? No, the test case below can show the bug.
+            /* Here is the 1st place C# winner (the 23rd overall winners) ... All comments are added by me when learning his code ... 
+               is the return array sorted? No, the test case below can show the bug.
+               Also, the code are ranked by the least amount of the chars, therefore all his variables are 1 char :) ...
             object minimalBasketPrice(int maxPrice, int[] vendorsDelivery, int[][] vendorsProducts)
             {
             */
