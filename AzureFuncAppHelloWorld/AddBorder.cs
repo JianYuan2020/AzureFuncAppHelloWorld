@@ -33,7 +33,6 @@ namespace AzureFuncAppHelloWorld
                 newPic[r + 1] = '*' + picture[r] + '*';
             }
             newPic[rowNum + 1] = starStr;
-
             return newPic;
         }
 
@@ -44,8 +43,7 @@ namespace AzureFuncAppHelloWorld
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            // http://localhost:7071/api/ReverseInParentheses?s=foo(bar)baz(blim)
-            // sPic=abc;ded
+            // http://localhost:7071/api/AddBorder?sPic=abc;ded
             string s = req.Query["sPic"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -54,7 +52,7 @@ namespace AzureFuncAppHelloWorld
 
             string responseMessage = string.IsNullOrEmpty(s)
                 ? "This HTTP triggered function executed successfully. Pass a s(string) in the query string or in the request body for response."
-                : $"Hello, the add border for {s} is {addBorder(s.Split(';')).ToString()}.";
+                : $"Hello, the add border for {s} is {string.Join(";", addBorder(s.Split(';')))}.";
 
             return new OkObjectResult(responseMessage);
         }
