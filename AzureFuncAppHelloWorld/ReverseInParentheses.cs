@@ -63,7 +63,7 @@ namespace AzureFuncAppHelloWorld
             if (openPIndex > 0)
                 outputString += inputString.Substring(0, openPIndex);
             outputString += reverseString(inputString.Substring(openPIndex, closeIndex - openPIndex + 1).ToCharArray());
-            if (closeIndex < inputString.Length - 2)
+            if (closeIndex < inputString.Length - 1)
                 outputString += inputString.Substring(closeIndex + 1);
 
             return outputString;
@@ -76,7 +76,7 @@ namespace AzureFuncAppHelloWorld
             if (openPIndexList.Count != closePIndexList.Count)
                 return "Not all parentheses are paired";
 
-            int openP, closeP;
+            int openP, closeP, len = inputString.Length;
             while (closePIndexList.Count > 0)
             {
                 closeP = closePIndexList[0];
@@ -84,6 +84,10 @@ namespace AzureFuncAppHelloWorld
                 openPIndexList.Remove(openP);
                 closePIndexList.Remove(closeP);
                 inputString = reverseOneParenthese(inputString, openP, closeP);
+                if (len != inputString.Length)
+                {
+                    int jian = -1;
+                }
             }
             inputString = inputString.Replace("(", "");
             return inputString.Replace(")", "");
@@ -97,6 +101,7 @@ namespace AzureFuncAppHelloWorld
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             // http://localhost:7071/api/ReverseInParentheses?s=foo(bar)baz(blim)
+            // http://localhost:7071/api/ReverseInParentheses?s=(())(((())))
             string s = req.Query["s"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
