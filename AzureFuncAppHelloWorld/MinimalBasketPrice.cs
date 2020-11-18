@@ -136,7 +136,7 @@ namespace AzureFuncAppHelloWorld
             Console.WriteLine($"The best delivery: {minDelivery}, vendor list: [{string.Join(", ", minDeliveryVenIndex)}], its min price: {minDeliveryMinPrice}");
             return minDeliveryVenIndex != null? GetSortedVenIndex(minDeliveryVenIndex) : GetSortedVenIndex(minPriceVenIndex);*/
 
-            /* Here is the 1st place C# winner (the 23rd overall winners) ... is the return array sorted?
+            /* Here is the 1st place C# winner (the 23rd overall winners) ... is the return array sorted? No, the test case below can show the bug.
             object minimalBasketPrice(int maxPrice, int[] vendorsDelivery, int[][] vendorsProducts)
             {
             */
@@ -182,7 +182,7 @@ namespace AzureFuncAppHelloWorld
                     }
                 } // go over all items 
 
-                // If we found an answer, return ... is the return array sorted?
+                // If we found an answer, return ... is the return array sorted? No, the test case below can show the bug.
                 if (hasAllItems && sum <= maxPrice) return g.ToArray();
             }
             return g.ToArray();
@@ -202,6 +202,8 @@ namespace AzureFuncAppHelloWorld
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             s = s ?? data?.s;
+
+            // Ignore the "sNumbers" for now, here is the test case input
 
             /*int maxPrice = 7;
             int[] vendorsDelivery = new int[] { 5, 4, 2, 3 };
