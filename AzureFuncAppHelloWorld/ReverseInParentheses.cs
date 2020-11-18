@@ -84,10 +84,6 @@ namespace AzureFuncAppHelloWorld
                 openPIndexList.Remove(openP);
                 closePIndexList.Remove(closeP);
                 inputString = reverseOneParenthese(inputString, openP, closeP);
-                if (len != inputString.Length)
-                {
-                    int jian = -1;
-                }
             }
             inputString = inputString.Replace("(", "");
             return inputString.Replace(")", "");
